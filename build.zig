@@ -31,6 +31,14 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(dasm_exe);
     b.installArtifact(vm_exe);
 
+    const shared = b.addModule("shared", .{
+        .source_file = .{ .path = "src/shared/shared.zig" },
+    });
+
+    asm_exe.addModule("shared", shared);
+    dasm_exe.addModule("shared", shared);
+    vm_exe.addModule("shared", shared);
+
     const asm_run_cmd = b.addRunArtifact(asm_exe);
     const dasm_run_cmd = b.addRunArtifact(dasm_exe);
     const vm_run_cmd = b.addRunArtifact(vm_exe);
