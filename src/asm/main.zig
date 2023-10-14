@@ -1,5 +1,5 @@
 const std = @import("std");
-const spec = @import("shared").spec;
+const Assembly = @import("assembly.zig").Assembly;
 
 const version = std.SemanticVersion{ .major = 0, .minor = 1, .patch = 0 };
 
@@ -31,6 +31,10 @@ fn assembleFile(alloc: std.mem.Allocator, path: []const u8) !void {
     const source = try in_file.readToEndAlloc(alloc, std.math.maxInt(usize));
     defer alloc.free(source);
 
+    var assembly: Assembly = undefined;
+    try assembly.init(alloc, source);
+    defer assembly.deinit();
+
     const strs = [_][]const u8{ path, ".vmex" };
     const out_path = try std.mem.concat(alloc, u8, &strs);
     defer alloc.free(out_path);
@@ -41,27 +45,7 @@ fn assembleFile(alloc: std.mem.Allocator, path: []const u8) !void {
     var buffered_writer = std.io.bufferedWriter(out_file.writer());
     const writer = buffered_writer.writer();
 
-    // magic number signature
-    try writer.writeAll(&[_]u8{ 0x64, 0x65, 0x66, 0x30 });
-
-    // spec major version
-    try writer.writeIntLittle(u16, spec.version.major);
-
-    // spec minor version
-    try writer.writeIntLittle(u16, spec.version.minor);
-
-    // assembly major version
-    try writer.writeIntLittle(u32, 1);
-
-    // assembly minor version
-    try writer.writeIntLittle(u32, 0);
-
-    // assembly patch version
-    try writer.writeIntLittle(u32, 0);
-
-    // assembly build version
-    try writer.writeIntLittle(u32, 0);
-
+    try assembly.write(writer);
     try buffered_writer.flush();
 }
 

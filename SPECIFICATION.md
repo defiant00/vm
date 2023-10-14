@@ -7,3 +7,5 @@ Offset  | Size  | Field                         | Description
 12      | u4    | Assembly Minor Version        | Assembly minor version
 16      | u4    | Assembly Patch Version        | Assembly patch version
 20      | u4    | Assembly Build Version        | Assembly build version
+24      | u4    | String Heap Offset            | String heap starting offset
+28      | u4    | Code Heap Offset              | Code heap starting offset
