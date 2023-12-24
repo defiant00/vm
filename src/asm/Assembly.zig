@@ -4,26 +4,31 @@ const spec = @import("shared").spec;
 
 const Assembly = @This();
 
+alloc: Allocator,
+source: []const u8,
+
 major_version: u32,
 minor_version: u32,
 patch_version: u32,
 build_version: u32,
 
-pub fn init(self: *Assembly, alloc: Allocator, source: []const u8) !void {
-    _ = alloc;
-    _ = source;
+pub fn init(alloc: Allocator, source: []const u8) Assembly {
+    return .{
+        .alloc = alloc,
+        .source = source,
 
-    self.major_version = 1;
-    self.minor_version = 0;
-    self.patch_version = 0;
-    self.build_version = 0;
+        .major_version = 1,
+        .minor_version = 0,
+        .patch_version = 0,
+        .build_version = 0,
+    };
 }
 
-pub fn deinit(self: *Assembly) void {
+pub fn deinit(self: Assembly) void {
     _ = self;
 }
 
-pub fn write(self: *Assembly, writer: anytype) !void {
+pub fn write(self: Assembly, writer: anytype) !void {
     // offset:size
 
     // magic number signature 0:4

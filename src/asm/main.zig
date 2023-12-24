@@ -31,8 +31,7 @@ fn assembleFile(alloc: std.mem.Allocator, path: []const u8) !void {
     const source = try in_file.readToEndAlloc(alloc, std.math.maxInt(usize));
     defer alloc.free(source);
 
-    var assembly: Assembly = undefined;
-    try assembly.init(alloc, source);
+    var assembly = Assembly.init(alloc, source);
     defer assembly.deinit();
 
     const strs = [_][]const u8{ path, ".vmex" };
