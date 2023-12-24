@@ -1,19 +1,19 @@
 const std = @import("std");
-const Assembly = @import("assembly.zig").Assembly;
+const Assembly = @import("Assembly.zig");
 
 const version = std.SemanticVersion{ .major = 0, .minor = 1, .patch = 0 };
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    var alloc = gpa.allocator();
+    const alloc = gpa.allocator();
 
     const args = try std.process.argsAlloc(alloc);
     defer std.process.argsFree(alloc, args);
 
     if (args.len == 2) {
-        if (std.mem.eql(u8, args[1], "help")) {
+        if (std.ascii.eqlIgnoreCase(args[1], "help")) {
             printUsage();
-        } else if (std.mem.eql(u8, args[1], "version")) {
+        } else if (std.ascii.eqlIgnoreCase(args[1], "version")) {
             std.debug.print("{}\n", .{version});
         } else {
             try assembleFile(alloc, args[1]);
