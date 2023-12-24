@@ -1,6 +1,6 @@
 const std = @import("std");
 const flags = @import("flags.zig");
-const VM = @import("vm.zig").VM;
+const VM = @import("VM.zig");
 
 const GcAllocator = @This();
 

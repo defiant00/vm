@@ -1,8 +1,8 @@
 const std = @import("std");
-const VM = @import("vm.zig").VM;
+const VM = @import("VM.zig");
 
 test {
-    _ = @import("string_pool.zig");
+    _ = @import("StringPool.zig");
 }
 
 const version = std.SemanticVersion{ .major = 0, .minor = 1, .patch = 0 };
