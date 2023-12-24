@@ -53,9 +53,9 @@ pub fn build(b: *std.Build) void {
         vm_run_cmd.addArgs(args);
     }
 
-    const asm_run_step = b.step("run-asm", "Run the assembler");
-    const dasm_run_step = b.step("run-dasm", "Run the disassembler");
-    const vm_run_step = b.step("run-vm", "Run the VM");
+    const asm_run_step = b.step("asm", "Run the assembler");
+    const dasm_run_step = b.step("dasm", "Run the disassembler");
+    const vm_run_step = b.step("vm", "Run the VM");
 
     asm_run_step.dependOn(&asm_run_cmd.step);
     dasm_run_step.dependOn(&dasm_run_cmd.step);
