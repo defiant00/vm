@@ -5,17 +5,15 @@ const spec = @import("shared").spec;
 const Assembly = @This();
 
 alloc: Allocator,
-source: []const u8,
 
 major_version: u32,
 minor_version: u32,
 patch_version: u32,
 build_version: u32,
 
-pub fn init(alloc: Allocator, source: []const u8) Assembly {
+pub fn init(alloc: Allocator) Assembly {
     return .{
         .alloc = alloc,
-        .source = source,
 
         .major_version = 1,
         .minor_version = 0,
@@ -26,6 +24,11 @@ pub fn init(alloc: Allocator, source: []const u8) Assembly {
 
 pub fn deinit(self: Assembly) void {
     _ = self;
+}
+
+pub fn assemble(self: *Assembly, source: []const u8) !void {
+    _ = self;
+    _ = source;
 }
 
 pub fn write(self: Assembly, writer: anytype) !void {
