@@ -4,26 +4,26 @@ const spec = @import("shared").spec;
 
 const Assembly = @This();
 
-alloc: Allocator,
-
 major_version: u32,
 minor_version: u32,
 patch_version: u32,
 build_version: u32,
 
+il: std.ArrayList(u8),
+
 pub fn init(alloc: Allocator) Assembly {
     return .{
-        .alloc = alloc,
-
         .major_version = 1,
         .minor_version = 0,
         .patch_version = 0,
         .build_version = 0,
+
+        .il = std.ArrayList(u8).init(alloc),
     };
 }
 
 pub fn deinit(self: Assembly) void {
-    _ = self;
+    self.il.deinit();
 }
 
 pub fn assemble(self: *Assembly, source: []const u8) !void {
@@ -55,9 +55,13 @@ pub fn write(self: Assembly, writer: anytype) !void {
     // assembly build version 20:4
     try writer.writeInt(u32, self.build_version, .little);
 
-    // string heap offset 24:4
-    try writer.writeInt(u32, 32, .little);
-
-    // code heap offset 28:4
-    try writer.writeInt(u32, 0, .little);
+    // IL block
+    if (self.il.items.len > 0) {
+        // #il
+        try writer.writeAll(&[_]u8{ 0x23, 0x69, 0x6c, 0x00 });
+        // size
+        try writer.writeInt(u32, @intCast(self.il.items.len + 8), .little);
+        // il
+        try writer.writeAll(self.il.items);
+    }
 }
