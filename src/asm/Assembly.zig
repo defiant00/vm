@@ -9,7 +9,7 @@ minor_version: u32,
 patch_version: u32,
 build_version: u32,
 
-il: std.ArrayList(u8),
+code: std.ArrayList(u8),
 
 pub fn init(alloc: Allocator) Assembly {
     return .{
@@ -18,12 +18,12 @@ pub fn init(alloc: Allocator) Assembly {
         .patch_version = 0,
         .build_version = 0,
 
-        .il = std.ArrayList(u8).init(alloc),
+        .code = std.ArrayList(u8).init(alloc),
     };
 }
 
 pub fn deinit(self: Assembly) void {
-    self.il.deinit();
+    self.code.deinit();
 }
 
 pub fn assemble(self: *Assembly, source: []const u8) !void {
@@ -35,7 +35,7 @@ pub fn write(self: Assembly, writer: anytype) !void {
     // offset:size
 
     // magic number signature 0:4
-    try writer.writeAll(&[_]u8{ 0x64, 0x65, 0x66, 0x30 });
+    try writer.writeAll("def0");
 
     // spec major version 4:2
     try writer.writeInt(u16, spec.version.major, .little);
@@ -55,13 +55,13 @@ pub fn write(self: Assembly, writer: anytype) !void {
     // assembly build version 20:4
     try writer.writeInt(u32, self.build_version, .little);
 
-    // IL block
-    if (self.il.items.len > 0) {
-        // #il
-        try writer.writeAll(&[_]u8{ 0x23, 0x69, 0x6c, 0x00 });
+    // code block
+    if (self.code.items.len > 0) {
+        // #code
+        try writer.writeAll("#code\x00\x00\x00");
         // size
-        try writer.writeInt(u32, @intCast(self.il.items.len + 8), .little);
-        // il
-        try writer.writeAll(self.il.items);
+        try writer.writeInt(u32, @intCast(self.code.items.len), .little);
+        // code
+        try writer.writeAll(self.code.items);
     }
 }
