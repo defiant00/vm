@@ -42,8 +42,12 @@ pub fn run(self: *VM, data: []const u8) !void {
     // data blocks
     var pos: usize = 24;
     while (pos < data.len) {
-        std.debug.print("header '{s}'\n", .{data[pos .. pos + 8]});
-        pos += 8;
+        if (data[pos] != '#') {
+            return error.MissingMarker;
+        }
+        pos += 1;
+        std.debug.print("header '{s}'\n", .{data[pos .. pos + 4]});
+        pos += 4;
         const size = std.mem.readVarInt(u32, data[pos .. pos + 4], .little);
         pos += 4;
         std.debug.print("  size {d}\n", .{size});

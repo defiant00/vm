@@ -27,8 +27,10 @@ pub fn deinit(self: Assembly) void {
 }
 
 pub fn assemble(self: *Assembly, source: []const u8) !void {
-    _ = self;
     _ = source;
+
+    // _ = self;
+    try self.code.append(42);
 }
 
 pub fn write(self: Assembly, writer: anytype) !void {
@@ -58,7 +60,7 @@ pub fn write(self: Assembly, writer: anytype) !void {
     // code block
     if (self.code.items.len > 0) {
         // #code
-        try writer.writeAll("#code\x00\x00\x00");
+        try writer.writeAll("#code");
         // size
         try writer.writeInt(u32, @intCast(self.code.items.len), .little);
         // code
