@@ -20,3 +20,5 @@ Offset  | Size  | Field           | Description
 9       | n     | Block data      | Block data
 
 ## Code Block, "code" 0x63 0x6f 0x64 0x65
+
+## String Block "str" 0x73 0x74 0x72 0x00

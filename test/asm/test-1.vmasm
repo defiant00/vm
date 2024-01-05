@@ -1,1 +1,21 @@
-.ver 1:2:3:4
+op.version 1
+op.version 1.2
+op.version 1.2.3
+op.version 1.2.3.4
+op.no
+21
+22
+23
+24
+-12
+155
+op.add
+op.subtract
+op.multiply
+op.divide
+op.remainder
+"hello"
+"goodbye"
+"hello"
+"hello"
+"goodbye"
