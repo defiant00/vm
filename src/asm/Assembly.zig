@@ -1,16 +1,15 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 const flags = @import("flags.zig");
-const Lexer = @import("lexer.zig").Lexer;
+const Lexer = @import("Lexer.zig");
 const OpCode = @import("shared").OpCode;
 const spec = @import("shared").spec;
-const Token = @import("lexer.zig").Token;
 
 const Assembly = @This();
 
 const Parser = struct {
-    current: Token,
-    prior: Token,
+    current: Lexer.Token,
+    prior: Lexer.Token,
 };
 
 major_version: u32,
@@ -123,11 +122,11 @@ fn advance(self: *Assembly) void {
     }
 }
 
-fn check(self: Assembly, expected: Token.Type) bool {
+fn check(self: Assembly, expected: Lexer.Token.Type) bool {
     return self.parser.current.type == expected;
 }
 
-fn consume(self: *Assembly, expected: Token.Type, message: []const u8) void {
+fn consume(self: *Assembly, expected: Lexer.Token.Type, message: []const u8) void {
     if (self.parser.current.type == expected) {
         self.advance();
     } else {
@@ -139,7 +138,7 @@ fn emitOp(self: *Assembly, op: OpCode) !void {
     try self.code.append(@intFromEnum(op));
 }
 
-fn errorAt(self: Assembly, token: Token, message: []const u8) void {
+fn errorAt(self: Assembly, token: Lexer.Token, message: []const u8) void {
     // TODO panic and error parser modes
     _ = self;
 
@@ -169,7 +168,7 @@ fn getAddString(self: *Assembly, str: []const u8) !usize {
     return (try self.strings.getOrPut(str)).index;
 }
 
-fn match(self: *Assembly, expected: Token.Type) bool {
+fn match(self: *Assembly, expected: Lexer.Token.Type) bool {
     if (!self.check(expected)) return false;
     self.advance();
     return true;
@@ -202,16 +201,16 @@ fn number(self: *Assembly) !void {
     const val = try std.fmt.parseInt(i64, self.parser.prior.value, 10);
 
     if (val > std.math.maxInt(i32) or val < std.math.minInt(i32)) {
-        try self.emitOp(.val_i64);
+        try self.emitOp(.push_i64);
         try self.code.writer().writeInt(i64, val, .little);
     } else if (val > std.math.maxInt(i16) or val < std.math.minInt(i16)) {
-        try self.emitOp(.val_i32);
+        try self.emitOp(.push_i32);
         try self.code.writer().writeInt(i32, @intCast(val), .little);
     } else if (val > std.math.maxInt(i8) or val < std.math.minInt(i8)) {
-        try self.emitOp(.val_i16);
+        try self.emitOp(.push_i16);
         try self.code.writer().writeInt(i16, @intCast(val), .little);
     } else {
-        try self.emitOp(.val_i8);
+        try self.emitOp(.push_i8);
         try self.code.writer().writeInt(i8, @intCast(val), .little);
     }
 }
@@ -272,6 +271,6 @@ fn opVersion(self: *Assembly) void {
 
 fn string(self: *Assembly) !void {
     const idx = try self.getAddString(self.parser.prior.value);
-    try self.emitOp(.val_str);
+    try self.emitOp(.push_str);
     try self.code.append(@intCast(idx));
 }

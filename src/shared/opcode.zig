@@ -1,12 +1,12 @@
 pub const OpCode = enum {
     no,
 
-    val_i8,
-    val_i16,
-    val_i32,
-    val_i64,
+    push_i8,
+    push_i16,
+    push_i32,
+    push_i64,
 
-    val_str,
+    push_str,
 
     add,
     subtract,
