@@ -1,19 +1,17 @@
-pub const TokenType = enum {
-    left_paren,
-    right_paren,
-    literal,
-    string,
-    error_,
-    eof,
-};
-
 pub const Token = struct {
-    type: TokenType,
+    type: Type,
     value: []const u8,
-    start_line: usize,
-    start_column: usize,
-    end_line: usize,
-    end_column: usize,
+    line: usize,
+    column: usize,
+
+    pub const Type = enum {
+        left_paren,
+        right_paren,
+        literal,
+        string,
+        error_,
+        eof,
+    };
 };
 
 pub const Lexer = struct {
@@ -52,34 +50,16 @@ pub const Lexer = struct {
         return if (self.current_index < self.source.len) self.source[self.current_index] else 0;
     }
 
-    fn peekNext(self: Lexer) u8 {
-        const index = self.current_index + 1;
-        return if (index < self.source.len) self.source[index] else 0;
-    }
-
     fn discard(self: *Lexer) void {
         self.start_index = self.current_index;
     }
 
-    fn token(self: Lexer, token_type: TokenType) Token {
+    fn token(self: Lexer, token_type: Token.Type) Token {
         return .{
             .type = token_type,
             .value = self.source[self.start_index..self.current_index],
-            .start_line = self.line,
-            .start_column = self.column + self.start_index - self.current_index,
-            .end_line = self.line,
-            .end_column = self.column,
-        };
-    }
-
-    fn multilineToken(self: Lexer, token_type: TokenType, s_line: usize, s_col: usize) Token {
-        return .{
-            .type = token_type,
-            .value = self.source[self.start_index..self.current_index],
-            .start_line = s_line,
-            .start_column = s_col,
-            .end_line = self.line,
-            .end_column = self.column,
+            .line = self.line,
+            .column = self.column + self.start_index - self.current_index,
         };
     }
 
@@ -87,10 +67,8 @@ pub const Lexer = struct {
         return .{
             .type = .error_,
             .value = message,
-            .start_line = self.line,
-            .start_column = self.column,
-            .end_line = self.line,
-            .end_column = self.column,
+            .line = self.line,
+            .column = self.column,
         };
     }
 
@@ -110,23 +88,11 @@ pub const Lexer = struct {
         // discard opening quote
         self.discard();
 
-        const start_line = self.line;
-        const start_col = self.column;
-
-        while (!self.isAtEnd()) {
-            if (self.peek() == '"') {
-                if (self.peekNext() == '"') {
-                    self.advance();
-                } else {
-                    break;
-                }
-            }
-            self.advance();
-        }
+        while (self.peek() != '"' and !self.isAtEnd()) self.advance();
 
         if (self.isAtEnd()) return self.errorToken("unterminated string");
 
-        const tok = self.multilineToken(.string, start_line, start_col);
+        const tok = self.token(.string);
 
         // discard closing quote
         self.advance();

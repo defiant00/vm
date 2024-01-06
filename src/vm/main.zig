@@ -39,7 +39,7 @@ fn runFile(alloc: std.mem.Allocator, path: []const u8) !void {
     try vm.init(alloc);
     defer vm.deinit();
 
-    try vm.run(data);
+    try vm.load(data);
 }
 
 fn printUsage() void {

@@ -5,7 +5,6 @@ const Lexer = @import("lexer.zig").Lexer;
 const OpCode = @import("shared").OpCode;
 const spec = @import("shared").spec;
 const Token = @import("lexer.zig").Token;
-const TokenType = @import("lexer.zig").TokenType;
 
 const Assembly = @This();
 
@@ -124,11 +123,11 @@ fn advance(self: *Assembly) void {
     }
 }
 
-fn check(self: Assembly, expected: TokenType) bool {
+fn check(self: Assembly, expected: Token.Type) bool {
     return self.parser.current.type == expected;
 }
 
-fn consume(self: *Assembly, expected: TokenType, message: []const u8) void {
+fn consume(self: *Assembly, expected: Token.Type, message: []const u8) void {
     if (self.parser.current.type == expected) {
         self.advance();
     } else {
@@ -145,28 +144,22 @@ fn errorAt(self: Assembly, token: Token, message: []const u8) void {
     _ = self;
 
     if (token.type == .eof) {
-        std.debug.print("[{}:{}-{}:{}] Error at end: {s}\n", .{
-            token.start_line,
-            token.start_column,
-            token.end_line,
-            token.end_column,
+        std.debug.print("[{}:{}] Error at end: {s}\n", .{
+            token.line,
+            token.column,
             message,
         });
     } else if (token.type != .error_) {
-        std.debug.print("[{}:{}-{}:{}] Error at '{s}': {s}\n", .{
-            token.start_line,
-            token.start_column,
-            token.end_line,
-            token.end_column,
+        std.debug.print("[{}:{}] Error at '{s}': {s}\n", .{
+            token.line,
+            token.column,
             token.value,
             message,
         });
     } else {
-        std.debug.print("[{}:{}-{}:{}] Error: {s}\n", .{
-            token.start_line,
-            token.start_column,
-            token.end_line,
-            token.end_column,
+        std.debug.print("[{}:{}] Error: {s}\n", .{
+            token.line,
+            token.column,
             message,
         });
     }
@@ -176,7 +169,7 @@ fn getAddString(self: *Assembly, str: []const u8) !usize {
     return (try self.strings.getOrPut(str)).index;
 }
 
-fn match(self: *Assembly, expected: TokenType) bool {
+fn match(self: *Assembly, expected: Token.Type) bool {
     if (!self.check(expected)) return false;
     self.advance();
     return true;

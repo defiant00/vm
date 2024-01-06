@@ -8,10 +8,16 @@ parent_allocator: Allocator,
 gc: GcAllocator,
 allocator: Allocator,
 
-pub fn init(self: *VM, allocator: Allocator) !void {
-    self.parent_allocator = allocator;
+code: []const u8,
+strings: std.StringArrayHashMap(void),
+
+pub fn init(self: *VM, alloc: Allocator) !void {
+    self.parent_allocator = alloc;
     self.gc = GcAllocator.init(self);
     self.allocator = self.gc.allocator();
+
+    self.code = "";
+    self.strings = std.StringArrayHashMap(void).init(alloc);
 }
 
 pub fn deinit(self: *VM) void {
@@ -22,9 +28,7 @@ pub fn collectGarbage(self: *VM) void {
     _ = self;
 }
 
-pub fn run(self: *VM, data: []const u8) !void {
-    _ = self;
-
+pub fn load(self: *VM, data: []const u8) !void {
     // header
     if (!std.mem.eql(u8, data[0..4], "def0")) {
         return error.InvalidSignature;
@@ -46,11 +50,19 @@ pub fn run(self: *VM, data: []const u8) !void {
             return error.MissingMarker;
         }
         pos += 1;
-        std.debug.print("header '{s}'\n", .{data[pos .. pos + 4]});
+        const header = data[pos .. pos + 4];
         pos += 4;
         const size = std.mem.readVarInt(u32, data[pos .. pos + 4], .little);
         pos += 4;
-        std.debug.print("  size {d}\n", .{size});
+        const block_data = data[pos .. pos + size];
         pos += size;
+
+        if (std.mem.eql(u8, header, "code")) {
+            self.code = block_data;
+        } else if (std.mem.eql(u8, header, "str\x00")) {
+            //
+        } else {
+            std.debug.print("Error: Unknown block type '{s}'\n", .{header});
+        }
     }
 }
