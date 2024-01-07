@@ -4,7 +4,6 @@ pub const OpCode = enum {
     push_i8,
     push_i16,
     push_i32,
-    push_i64,
 
     push_str,
 
@@ -13,4 +12,6 @@ pub const OpCode = enum {
     multiply,
     divide,
     remainder,
+
+    return_,
 };

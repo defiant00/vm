@@ -198,12 +198,9 @@ fn literal(self: *Assembly) !void {
 fn number(self: *Assembly) !void {
     // TODO binary, octal, decimal, hex with separators and int/float detection
 
-    const val = try std.fmt.parseInt(i64, self.parser.prior.value, 10);
+    const val = try std.fmt.parseInt(i32, self.parser.prior.value, 10);
 
-    if (val > std.math.maxInt(i32) or val < std.math.minInt(i32)) {
-        try self.emitOp(.push_i64);
-        try self.code.writer().writeInt(i64, val, .little);
-    } else if (val > std.math.maxInt(i16) or val < std.math.minInt(i16)) {
+    if (val > std.math.maxInt(i16) or val < std.math.minInt(i16)) {
         try self.emitOp(.push_i32);
         try self.code.writer().writeInt(i32, @intCast(val), .little);
     } else if (val > std.math.maxInt(i8) or val < std.math.minInt(i8)) {
@@ -227,6 +224,8 @@ fn opCode(self: *Assembly) !void {
         try self.emitOp(.no);
     } else if (std.mem.eql(u8, op, "remainder")) {
         try self.emitOp(.remainder);
+    } else if (std.mem.eql(u8, op, "return")) {
+        try self.emitOp(.return_);
     } else if (std.mem.eql(u8, op, "subtract")) {
         try self.emitOp(.subtract);
     } else if (std.mem.eql(u8, op, "version")) {

@@ -19,3 +19,4 @@ op.remainder
 "hello"
 "hello"
 "goodbye"
+op.return
